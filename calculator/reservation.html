@@ -1,9 +1,0 @@
-{% extends 'calculator/base.html' %}
-{% block content %}
-<h3>Стол броньдау</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Бронь жасау</button>
-</form>
-{% endblock %}
