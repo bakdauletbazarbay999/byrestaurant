@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Мейрамхана{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    /* 1. Негізгі айнымалылар және Режимдер (Dark/Light) */
+    :root {
+        --dark-brown: #4E342E;
+        --hover-brown: #795548;
+        --soft-bg: #fdfaf9; /* Жарық режим фоны */
+        --card-bg: #ffffff;
+        --text-color: #4E342E;
+        --nav-glass: rgba(78, 52, 46, 0.95);
+        --card-shadow: rgba(78, 52, 46, 0.08);
+    }
+
+    [data-theme="dark"] {
+        --soft-bg: #121212; /* Түнгі режим фоны */
+        --card-bg: #1e1e1e;
+        --text-color: #fdfaf9;
+        --nav-glass: rgba(0, 0, 0, 0.9);
+        --card-shadow: rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+        background-color: var(--soft-bg);
+        color: var(--text-color);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* 2. Навигациялық жолақ (Floating Capsule Glassmorphism) */
+    .navbar {
+        margin: 15px 20px;
+        border-radius: 50px;
+        background-color: #4E342E !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.6rem 1.5rem !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .navbar:hover {
+        transform: scale(1.01);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .navbar-brand {
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(45deg, #fff, #d4a373);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .navbar-brand:hover {
+        letter-spacing: 4px;
+        opacity: 0.9;
+    }
+
+    /* 3. Заманауи түймелер */
+    .btn-outline-light {
+        border-radius: 12px;
+        padding: 6px 16px;
+        font-weight: 500;
+        border: 1.5px solid rgba(255,255,255,0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-light:hover {
+        background-color: white;
+        color: var(--dark-brown) !important;
+        transform: translateY(-2px);
+    }
+
+    /* Режим ауыстырғыш батырма стилі */
+    .theme-toggle-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .theme-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(15deg);
+    }
+
+    /* 4. Карточкалар мен блоктар */
+    .card {
+        border: none;
+        border-radius: 20px;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        box-shadow: 0 10px 30px var(--card-shadow);
+        transition: transform 0.3s ease, background-color 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+    }
+
+    /* 5. Кестелер */
+    .table-responsive .table {
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--card-bg);
+        color: var(--text-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .table-responsive .table thead {
+        background-color: var(--dark-brown) !important;
+        color: white !important;
+    }
+
+    /* 6. AI көмекші батырмасы */
+    .ai-chat-floating-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #4E342E, #795548);
+        color: white !important;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+        z-index: 9999;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ai-chat-floating-btn:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .ai-tooltip {
+        position: fixed;
+        bottom: 45px;
+        right: 105px;
+        background: var(--dark-brown);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 9999;
+    }
+
+    .ai-chat-floating-btn:hover + .ai-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Адаптивтілік */
+    @media (max-width: 991px) {
+        .navbar { margin: 10px; border-radius: 20px; }
+    }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index6' %}">👑 By restaurant</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <div class="ms-auto d-flex align-items-center">
+                <a href="{% url 'menu' %}" class="btn btn-outline-light btn-sm me-2">Меню</a>
+
+                <a href="{% url 'view_cart' %}" class="btn btn-outline-light btn-sm me-2 position-relative">
+                    🛒 Себет
+                    {% with cart_count=request.session.cart|length %}
+                        {% if cart_count > 0 %}
+                            <span class="badge rounded-pill bg-danger">{{ cart_count }}</span>
+                        {% endif %}
+                    {% endwith %}
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_orders' %}" class="btn btn-outline-light btn-sm me-2">Тапсырыстарым</a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'director_dashboard' %}" class="btn btn-outline-light btn-sm me-2">Директор</a>
+                    {% endif %}
+                    <a href="{% url 'profile' %}" class="btn btn-outline-light btn-sm me-2">Профиль</a>
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light btn-sm">Шығу</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Кіру</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-sm me-2">Тіркелу</a>
+                {% endif %}
+
+                <button id="theme-toggle" class="theme-toggle-btn" title="Режимді ауыстыру">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+<a href="{% url 'chat_home' %}" class="ai-chat-floating-btn">
+    <span>🤖</span>
+</a>
+<div class="ai-tooltip">AI Кеңесшісі</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const html = document.documentElement;
+
+    // Жадыда сақталған режимді тексеру
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.innerText = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        let theme = html.getAttribute('data-theme');
+        if (theme === 'dark') {
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            themeIcon.innerText = '🌙';
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeIcon.innerText = '☀️';
+        }
+    });
+</script>
+</body>
+</html>

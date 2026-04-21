@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Қолданушы кабинеті</title>
+</head>
+<body>
+    <h2>Сәлем, {{ request.user.username }}!</h2>
+
+    <img src="{{ request.user.profile.photo.url }}" width="120" style="border-radius:50%;"><br>
+
+    <h3>Қоқыс суретін жіберу</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>Сурет жүктеу:</label><br>
+        <input type="file" name="image" required><br><br>
+
+        <label>Түсініктеме:</label><br>
+        <textarea name="comment" rows="4" cols="40"></textarea><br><br>
+
+        <button type="submit">Жіберу</button>
+    </form>
+
+    <h3>Менің өтініштерім</h3>
+    {% for req in user_requests %}
+        <div style="border:1px solid gray; padding:10px; margin:10px;">
+            <img src="{{ req.image.url }}" width="200"><br>
+            <b>Статус:</b> {{ req.status }} <br>
+            <b>Комментарий:</b> {{ req.comment }} <br>
+
+            {% if req.admin_photo %}
+                <p>Әкімшінің фотоотчеты:</p>
+                <img src="{{ req.admin_photo.url }}" width="200">
+            {% endif %}
+
+            {% if req.admin_reply %}
+                <p><b>Әкімшінің хаты:</b> {{ req.admin_reply }}</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <p><a href="{% url 'logout' %}">Шығу</a></p>
+</body>
+</html>

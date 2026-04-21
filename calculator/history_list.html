@@ -1,0 +1,136 @@
+{% extends 'calculator/base.html' %}
+
+{% block title %}Чат тарихы{% endblock %}
+
+{% block content %}
+<style>
+    /* 1. Негізгі фонды Base-пен үйлестіру */
+    .history-page-wrapper {
+        padding: 20px 0;
+        min-height: 80vh;
+    }
+
+    /* 2. Hyundai Header (көк gradient) */
+    .history-header {
+        max-width: 900px;
+        margin: auto;
+        padding: 30px 20px;
+        text-align: center;
+        border-radius: 18px 18px 0 0;
+        color: white;
+        background: linear-gradient(135deg, #002c5f 0%, #0a4ba8 100%);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+
+    .history-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: white !important; /* Base стилі басып кетпеуі үшін */
+    }
+
+    .history-header small {
+        opacity: 0.85;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* 3. Негізгі контейнер */
+    .history-container {
+        max-width: 900px;
+        margin: auto;
+        background: var(--card-bg); /* Түнгі режимге бейімделу үшін */
+        padding: 30px;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 6px 20px var(--card-shadow);
+        color: var(--text-color);
+    }
+
+    /* 4. Тарих карточкасы */
+    .item-card {
+        margin-bottom: 25px;
+        padding: 18px 20px;
+        border-radius: 12px;
+        background-color: rgba(10, 75, 168, 0.05); /* Жұмсақ көкшіл фон */
+        border-left: 6px solid #0a4ba8;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    /* Түнгі режимде карточка фонын реттеу */
+    [data-theme="dark"] .item-card {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .query-label {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #002c5f;
+    }
+    
+    [data-theme="dark"] .query-label {
+        color: #74a2ff;
+    }
+
+    .response-label {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px dashed #b8c3d6;
+        font-weight: 600;
+        color: #0a4ba8;
+    }
+
+    /* 5. Батырмалар */
+    .btn-hyundai {
+        background: linear-gradient(135deg, #002c5f, #0a4ba8);
+        color: white !important;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 8px 20px;
+        border: none;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-hyundai:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        transition: 0.3s;
+    }
+</style>
+
+<div class="history-page-wrapper">
+    <div class="history-header">
+        <h2>📜 Чат Тарихы</h2>
+        <small>Соңғы сұрақтарыңызды осында қарай аласыз</small>
+    </div>
+
+    <div class="history-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'chat_home' %}" class="btn btn-hyundai">← Чатқа оралу</a>
+        </div>
+
+        {% if history %}
+            {% for item in history %}
+                <div class="item-card">
+                    <p class="query-label mb-1">Сұрақ ({{ item.created_at|date:"d.m H:i" }}):</p>
+                    <p class="mb-3">{{ item.user_query }}</p>
+
+                    <p class="response-label mb-1">Жауап:</p>
+                    <p class="mb-0">{{ item.ai_response|linebreaksbr }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <p class="text-muted">Парақта жазбалар жоқ.</p>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <hr>
+            <a href="{% url 'clear_history' %}" class="btn btn-danger btn-sm px-4 shadow-sm" 
+               onclick="return confirm('Тарихты толық тазалауға сенімдісіз бе?')">
+                🗑️ Тарихты тазалау
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "calculator/base.html" %}
+
+{% block content %}
+<style>
+    /* Аналитика панелінің стилі */
+    .hci-dashboard {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        width: 220px;
+        background: rgba(62, 39, 35, 0.9);
+        color: #f7f9fb;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        font-family: 'Inter', sans-serif;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(172, 138, 116, 0.3);
+    }
+    .hci-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+    .hci-value {
+        font-weight: bold;
+        color: #ac8a74;
+    }
+    .error-flash {
+        color: #ff4d4d !important;
+        text-shadow: 0 0 10px #ff4d4d;
+        transition: 0.3s;
+    }
+</style>
+
+<div class="hci-dashboard">
+    <h6 class="text-center mb-3" style="color: #ac8a74; border-bottom: 1px solid #ac8a74; padding-bottom: 5px;">HCI Аналитика</h6>
+    <div class="hci-item">Жалпы: <span class="hci-value"><span id="total-timer">0.0</span> сек</span></div>
+    <div class="hci-item">Логин: <span class="hci-value"><span id="login-timer">0.0</span> сек</span></div>
+    <div class="hci-item">Пароль: <span class="hci-value"><span id="pass-timer">0.0</span> сек</span></div>
+    <div class="hci-item">Қателер: <span class="hci-value" id="error-count">0</span></div>
+</div>
+
+<div class="col-md-4 mx-auto mt-5 card p-4 shadow">
+    <h3 class="text-center mb-3">Жүйеге кіру</h3>
+
+    <form method="post" id="hciLoginForm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.username.label_tag }}
+            <input type="text" name="username" id="u_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            {{ form.password.label_tag }}
+            <input type="password" name="password" id="u_pass" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Кіру</button>
+    </form>
+
+    <div class="mt-3 text-center">
+        <small class="text-muted">Аккаунт жоқ па?</small>
+        <a href="{% url 'register' %}" class="fw-bold text-decoration-none">Тіркелу</a>
+    </div>
+</div>
+
+<script>
+    // 1. Барлық деректі бір "data" объектісінде сақтаймыз
+    let data = {
+        start: Date.now(),
+        userTime: 0,
+        passTime: 0,
+        userActive: false,
+        passActive: false,
+        errors: 0
+    };
+
+    const uInput = document.getElementById('u_name');
+    const pInput = document.getElementById('u_pass');
+    const errSpan = document.getElementById('error-count');
+
+    // 2. Қателерді есептеу және ХАБАРЛАМА шығару функциясы
+    function triggerError(message) {
+        data.errors++;
+        errSpan.innerText = data.errors;
+
+        // Статистика панеліндегі санды қызыл түспен жыпылықтату
+        errSpan.classList.add('error-flash');
+        setTimeout(() => errSpan.classList.remove('error-flash'), 500);
+
+        console.warn("HCI Error: " + message);
+    }
+
+    // 3. Backspace басқанда қате деп санау
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && (data.userActive || data.passActive)) {
+            triggerError("Түзету (Backspace басылды)");
+        }
+    });
+
+    // 4. Валидация қателері
+    uInput.addEventListener('blur', () => {
+        data.userActive = false;
+        if (uInput.value.length > 0 && uInput.value.length < 4) {
+            triggerError("Логин тым қысқа");
+        }
+    });
+
+    pInput.addEventListener('blur', () => {
+        data.passActive = false;
+        if (pInput.value.length > 0 && pInput.value.length < 6) {
+            triggerError("Құпиясөз әлсіз");
+        }
+    });
+
+    // 5. Фокус оқиғалары
+    uInput.addEventListener('focus', () => {
+        data.userActive = true;
+        data.passActive = false;
+    });
+
+    pInput.addEventListener('focus', () => {
+        data.userActive = false;
+        data.passActive = true;
+    });
+
+    // 6. Экранды автоматты жаңарту (100мс сайын)
+    setInterval(() => {
+        const now = Date.now();
+        document.getElementById('total-timer').innerText = ((now - data.start) / 1000).toFixed(1);
+
+        if (data.userActive) {
+            data.userTime += 100;
+            document.getElementById('login-timer').innerText = (data.userTime / 1000).toFixed(1);
+        }
+
+        if (data.passActive) {
+            data.passTime += 100;
+            document.getElementById('pass-timer').innerText = (data.passTime / 1000).toFixed(1);
+        }
+    }, 100);
+
+    // 7. Форма жіберілгендегі ТОЛЫҚ АНАЛИТИКА
+    document.getElementById('hciLoginForm').addEventListener('submit', function(e) {
+        const finalTime = ((Date.now() - data.start) / 1000).toFixed(2);
+        const loginDuration = (data.userTime / 1000).toFixed(2);
+        const passDuration = (data.passTime / 1000).toFixed(2);
+
+        alert(
+            `📊 Тіркелу аналитикасы (HCI Report):\n\n` +
+            `• Жалпы жұмсалған уақыт: ${finalTime} сек\n` +
+            `• Логин толтыру: ${loginDuration} сек\n` +
+            `• Пароль толтыру: ${passDuration} сек\n` +
+            `• Жіберілген қателер саны: ${data.errors}\n\n` +
+            `Деректер серверге жіберілуде...`
+        );
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'calculator/base.html' %}
+{% block title %}Себет{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>🛒 Сіздің Тапсырыс Себетіңіз</h2>
+
+    {% if items %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Тағам</th>
+                        <th>Суреті</th>
+                        <th>Бағасы</th> <th>Саны</th>
+                        <th>Қосалқы сома</th> <th>Әрекет</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.dish.name }}</td>
+                        <td>
+                            {% if item.dish.image %}
+                                <img src="{{ item.dish.image.url }}" alt="{{ item.dish.name }}" style="width: 80px; height: 60px; object-fit: cover;">
+                            {% else %}
+                                <span class="text-muted">Сурет жоқ</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.dish.price }} ₸</td>
+
+                        <td class="align-middle">
+                            <div class="d-flex align-items-center">
+                                <form action="{% url 'change_cart_item_quantity' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="dish_id" value="{{ item.dish.id }}">
+                                    <input type="hidden" name="action" value="remove">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger me-2" aria-label="Азайту">-</button>
+                                </form>
+
+                                <span class="dish-qty-display fw-bold mx-2">
+                                    {{ item.qty }}
+                                </span>
+
+                                <form action="{% url 'change_cart_item_quantity' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="dish_id" value="{{ item.dish.id }}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-sm btn-outline-success ms-2" aria-label="Көбейту">+</button>
+                                </form>
+                            </div>
+                        </td>
+
+                        <td id="subtotal-{{ item.dish.id }}">
+                            <strong>{{ item.subtotal }} ₸</strong>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'remove_from_cart' item.dish.id %}" class="btn btn-danger btn-sm">❌ Жою</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4 p-3 bg-light rounded shadow-sm">
+            <h4>Жалпы Сома: <strong class="text-primary" id="final-total">{{ total }} ₸</strong></h4>
+            <a href="{% url 'checkout' %}" class="btn btn-success btn-lg mt-3">✅ Тапсырысты рәсімдеу</a>
+        </div>
+
+    {% else %}
+        <div class="alert alert-warning text-center">
+            <h3>Себет бос.</h3>
+            <p>Дәмді тағамдарды таңдау үшін мәзірге өтіңіз.</p>
+            <a href="{% url 'menu' %}" class="btn btn-info mt-3">Мәзір</a>
+        </div>
+    {% endif %}
+
+</div>
+<a href="{% url 'chat_home' %}" class="ai-chat-floating-btn" title="AI Кеңесшісі">
+    <span>🤖</span>
+</a>
+<div class="ai-tooltip">AI Кеңесшісі</div>
+{% endblock %}

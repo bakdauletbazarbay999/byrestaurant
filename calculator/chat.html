@@ -1,0 +1,246 @@
+{% extends 'calculator/base.html' %}
+
+{% block title %}By restaurant - AI Кеңесшісі{% endblock %}
+
+{% block content %}
+<style>
+/* ---------------------------
+🔥 CHAT UI - БАРЛЫҚ СТИЛЬДЕР САҚТАЛДЫ
+----------------------------*/
+
+.chat-container {
+    max-width: 850px;
+    height: 75vh;
+    margin: 20px auto;
+    background: var(--card-bg);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 45px var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(172, 138, 116, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.chat-header {
+    background: linear-gradient(120deg, #ac8a74, #3e2723);
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.chat-box {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    background: rgba(247, 249, 251, 0.1);
+}
+
+.message {
+    max-width: 80%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    position: relative;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.message-user {
+    background: #ac8a74;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 3px 8px rgba(172, 138, 116, 0.25);
+}
+
+.message-ai {
+    background: var(--card-bg);
+    color: var(--text-color);
+    margin-right: auto;
+    border: 1px solid rgba(172, 138, 116, 0.2);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+/* ДАУЫС ФУНКЦИЯЛАРЫНЫҢ СТИЛІ */
+.voice-control {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0 5px;
+    transition: 0.3s;
+    vertical-align: middle;
+}
+
+.voice-control:hover { transform: scale(1.2); }
+
+.mic-btn {
+    color: #ac8a74;
+    font-size: 1.3rem;
+    margin-right: 5px;
+}
+
+.mic-active {
+    color: #d11a2a !important;
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.timestamp {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 4px;
+    display: block;
+}
+
+.input-area-custom {
+    background: var(--card-bg);
+    padding: 15px 20px;
+    border-top: 1px solid rgba(172, 138, 116, 0.2);
+}
+
+.btn-halyk {
+    background: linear-gradient(135deg, #ac8a74, #3e2723);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-halyk:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.clear-link {
+    font-size: 0.85rem;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.formatted-text h1, .formatted-text h2 { font-size: 1.2rem; color: #ac8a74; }
+.formatted-text strong { color: #ac8a74; font-weight: 700; }
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+         👑By restaurant - AI Кеңесшісі
+        <div style="font-size: 0.8rem; font-weight: normal; margin-top: 5px;">
+By restaurant-ға байланысты сұрақтарыңызға жауап беремін        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message message-ai">
+            Сәлеметсіз бе! "👑By restaurant" мейрамханасына қош келдіңіз! 👋 <br>
+            Мен "👑By restaurant"-ның виртуалды көмекшісімін. Қандай сұрағыңыз бар?
+            <button class="voice-control" onclick="speak(this.parentElement.innerText)">🔊</button>
+        </div>
+
+        {% for chat in history reversed %}
+            <div class="message message-user">
+                {{ chat.user_query }}
+                <span class="timestamp text-end">{{ chat.created_at|date:"H:i" }}</span>
+            </div>
+            <div class="message message-ai markdown-content">
+                <span style="display:none" class="raw-text">{{ chat.ai_response }}</span>
+                <div class="formatted-text">Жүктелуде...</div>
+                <button class="voice-control" onclick="speak(this.previousElementSibling.innerText)">🔊</button>
+                <span class="timestamp">{{ chat.created_at|date:"H:i" }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="input-area-custom">
+        <form method="POST" id="chatForm" class="d-flex gap-2 align-items-center">
+            {% csrf_token %}
+            <button type="button" class="voice-control mic-btn" id="startMic" title="Дауыспен айту">🎤</button>
+
+            <input type="text" name="message" id="userInput" class="form-control rounded-pill" placeholder="Сұрағыңызды жазыңыз..." required autocomplete="off" autofocus>
+            <button type="submit" class="btn btn-halyk px-4">➤</button>
+        </form>
+        <div class="text-center mt-2">
+            <a href="{% url 'index6' %}" class="clear-link me-3" style="color: #008080;">← Сайтқа қайту</a>
+            <a href="{% url 'full_history' %}" class="clear-link me-3" style="color: #ac8a74;">📜 Тарих</a>
+            <a href="{% url 'clear_history' %}" class="clear-link text-danger">🗑️ Тазалау</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // 1. MARKDOWN ЖӘНЕ СКРОЛЛ
+    document.addEventListener("DOMContentLoaded", function() {
+        var messages = document.querySelectorAll('.markdown-content');
+        messages.forEach(function(msg) {
+            var rawTextSpan = msg.querySelector('.raw-text');
+            var formattedDiv = msg.querySelector('.formatted-text');
+            if (rawTextSpan && formattedDiv) {
+                try {
+                    formattedDiv.innerHTML = marked.parse(rawTextSpan.textContent);
+                } catch (e) {
+                    formattedDiv.innerText = rawTextSpan.textContent;
+                }
+            }
+        });
+        var chatBox = document.getElementById("chatBox");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // 2. ДАУЫСТАП ОҚУ (SPEECH SYNTHESIS)
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        const cleanText = text.replace(/🔊/g, '').trim();
+        const msg = new SpeechSynthesisUtterance(cleanText);
+        msg.lang = 'ru-RU';
+        window.speechSynthesis.speak(msg);
+    }
+
+    // 3. ДАУЫСТЫ ТАНУ ЖӘНЕ АВТОМАТТЫ ЖІБЕРУ
+    const micBtn = document.getElementById('startMic');
+    const inputField = document.getElementById('userInput');
+    const chatForm = document.getElementById('chatForm');
+
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'kk-KZ';
+        recognition.interimResults = false;
+
+        micBtn.onclick = () => {
+            recognition.start();
+            micBtn.classList.add('mic-active');
+        };
+
+        recognition.onresult = (event) => {
+            const result = event.results[0][0].transcript;
+            inputField.value = result;
+            micBtn.classList.remove('mic-active');
+
+            // Мәтін қабылданғаннан кейін бірден форманы жіберу
+            if (result.trim().length > 0) {
+                chatForm.submit();
+            }
+        };
+
+        recognition.onerror = () => micBtn.classList.remove('mic-active');
+        recognition.onend = () => micBtn.classList.remove('mic-active');
+    } else {
+        micBtn.style.display = 'none';
+    }
+</script>
+{% endblock %}
