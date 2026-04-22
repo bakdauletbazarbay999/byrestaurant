@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+
+<nav style="background:#eee; padding:10px;">
+    <a href="/">Басты бет</a> |
+    {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}">Кабинет</a> |
+        <a href="{% url 'logout' %}">Шығу</a>
+    {% else %}
+        <a href="{% url 'login' %}">Кіру</a> |
+        <a href="{% url 'register' %}">Тіркелу</a>
+    {% endif %}
+</nav>
+
+<hr>
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>
+{% extends "base.html" %}
+{% block title %}Кіру{% endblock %}
+{% block content %}
+<h2>Аккаунтқа кіру</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Логин"><br><br>
+    <input type="password" name="password" placeholder="Құпия сөз"><br><br>
+    <button type="submit">Кіру</button>
+</form>
+{% endblock %}
+{% extends "soj2.html" %}
+{% block title %}Тіркелу{% endblock %}
+{% block content %}
+<h2>Тіркелу</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Логин"><br><br>
+    <input type="email" name="email" placeholder="Email"><br><br>
+    <input type="password" name="password1" placeholder="Құпия сөз"><br><br>
+    <input type="password" name="password2" placeholder="Құпия сөзді растау"><br><br>
+    <button>Тіркелу</button>
+</form>
+
+{% endblock %}
+{% extends "soj2.html" %}
+{% block title %}Кабинет{% endblock %}
+{% block content %}
+<h2>Қолданушы кабинеті</h2>
+
+<img src="{{ request.user.profile.photo.url }}" width="120" style="border-radius:50%;"><br><br>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="image" required><br><br>
+    <textarea name="comment" rows="3" cols="40"></textarea><br><br>
+    <button>Жіберу</button>
+</form>
+
+{% endblock %}

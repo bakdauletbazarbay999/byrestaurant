@@ -1,0 +1,21 @@
+{% extends 'calculator/base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if dish.image %}
+            <img src="{{ dish.image.url }}" class="img-fluid">
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h2>{{ dish.name }}</h2>
+        <p>{{ dish.description }}</p>
+        <h4>{{ dish.price }} ₸</h4>
+
+        <form method="post" action="{% url 'add_to_cart' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-success">Себетке қосу</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

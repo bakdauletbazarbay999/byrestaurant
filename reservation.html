@@ -1,0 +1,21 @@
+{% extends "calculator/base.html" %}
+
+{% block content %}
+<div class="col-md-4 mx-auto mt-5 card p-4 shadow">
+    <h3 class="text-center mb-3">Тіркелу</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success w-100">Аккаунт ашу</button>
+    </form>
+
+    <div class="mt-3 text-center">
+        <small class="text-muted">Аккаунт бар ма?</small>
+        <a href="{% url 'login' %}" class="fw-bold text-decoration-none">Кіру</a>
+    </div>
+</div>
+{% endblock %}
+
+
+
