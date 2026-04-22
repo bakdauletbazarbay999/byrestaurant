@@ -1,194 +1,26 @@
-{% extends 'calculator/base.html' %}
-{% block title %}Басты бет{% endblock %}
-
-{% block content %}
-<style>
-    /* Басты тақырып стилі */
-    .hero-section {
-        padding: 40px 0;
-        text-align: center;
-    }
-    .hero-title {
-        font-weight: 800;
-        font-size: 2.5rem;
-        color: #4E342E;
-        margin-bottom: 10px;
-    }
-    .hero-subtitle {
-        color: #795548;
-        font-size: 1.1rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-    }
-
-    /* Заманауи карточка дизайны */
-    .dish-card {
-        border: none;
-        border-radius: 20px;
-        overflow: hidden;
-        background: #D7CCC8;
-        box-shadow: 0 10px 25px rgba(78, 52, 46, 0.08); /* Жұмсақ қоңыр көлеңке */
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        height: 100%;
-    }
-
-    .dish-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(78, 52, 46, 0.15);
-    }
-
-    /* Сурет стилі */
-    .dish-img-container {
-        position: relative;
-        overflow: hidden;
-    }
-    .dish-img {
-        height: 220px;
-        width: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-    .dish-card:hover .dish-img {
-        transform: scale(1.1); /* Суреттің аздап үлкеюі */
-    }
-
-    /* Бағаның сурет үстіндегі стилі */
-    .price-badge {
-        position: absolute;
-        bottom: 15px;
-        right: 15px;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(5px);
-        color: #4E342E;
-        padding: 5px 15px;
-        border-radius: 50px;
-        font-weight: 700;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    /* Карточка мәтіні */
-    .card-body {
-        padding: 25px;
-    }
-    .dish-title {
-        font-weight: 700;
-        font-size: 1.25rem;
-        margin-bottom: 10px;
-        color: #4E342E;
-    }
-    .dish-text {
-        color: #6D4C41;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }
-
-    /* Заманауи батырма */
-    .btn-more {
-        background-color: #4E342E;
-        color: white !important;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 25px;
-        font-weight: 600;
-        width: 100%;
-        transition: 0.3s;
-        display: inline-block;
-        text-align: center;
-    }
-    .btn-more:hover {
-        background-color: #795548;
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(78, 52, 46, 0.2);
-    }
-
-
-
-
-    /* ЖИ көмекші батырмасының стилі */
-    .ai-chat-floating-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 65px;
-        height: 65px;
-        background: linear-gradient(135deg, #4E342E, #795548);
-        color: white !important;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        box-shadow: 0 10px 25px rgba(78, 52, 46, 0.4);
-        text-decoration: none;
-        z-index: 9999;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .ai-chat-floating-btn:hover {
-        transform: scale(1.1) rotate(5deg);
-        box-shadow: 0 15px 30px rgba(78, 52, 46, 0.5);
-        background: linear-gradient(135deg, #6D4C41, #4E342E);
-    }
-
-    /* Батырманың жанындағы кішкене көмекші мәтін (міндетті емес) */
-    .ai-tooltip {
-        position: fixed;
-        bottom: 45px;
-        right: 105px;
-        background: #4E342E;
-        color: white;
-        padding: 5px 15px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        opacity: 0;
-        visibility: hidden;
-        transition: 0.3s;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    .ai-chat-floating-btn:hover + .ai-tooltip {
-        opacity: 1;
-        visibility: visible;
-    }
-
-</style>
-
-<div class="hero-section">
-    <h1 class="hero-title">Біздің мейрамханаға қош келдіңіз!</h1>
-    <p class="hero-subtitle">Таңдаулы тағамдар</p>
-</div>
-
-<div class="row g-4"> {% for dish in popular %}
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card dish-card">
-            <div class="dish-img-container">
-                {% if dish.image %}
-                    <img src="{{ dish.image.url }}" class="dish-img" alt="{{ dish.name }}">
-                {% else %}
-                    <img src="https://via.placeholder.com/400x220?text=No+Image" class="dish-img">
-                {% endif %}
-                <div class="price-badge">
-                    {{ dish.price }} ₸
-                </div>
-            </div>
-
-            <div class="card-body">
-                <h5 class="dish-title">{{ dish.name }}</h5>
-                <p class="dish-text">{{ dish.description|truncatechars:85 }}</p>
-
-                <a href="{% url 'dish_detail' dish.id %}" class="btn-more">
-                    Толығырақ
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-<a href="{% url 'chat_home' %}" class="ai-chat-floating-btn" title="AI Кеңесшісі">
-    <span>🤖</span>
-</a>
-<div class="ai-tooltip">AI Кеңесшісі</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Меню </title>
+</head>
+<body>
+    <h2 style="margin-top: 40px; margin-left: 20px">Web қосымшаларды әзірлеу</h2><br>
+    <a style="font-size: 16pt; margin-left: 50px" ><b>I - аралық бақылау тапсырмалары</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab1"><b>Тәжірибелік жұмыс 1 - Елді мекендер арасындағы қашықтықты есептеу</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab2"><b>Тәжірибелік жұмыс 2 - Спорт, туризм</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab3/"><b>Тәжірибелік жұмыс 3 - Бренд пен тауарларды таңдау</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab4"><b>Тәжірибелік жұмыс 4 - Пәнді таңдау</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/soj"><b>Студенттің өзіндік жұмысы - СӨЖ</b></a><br><br>
+    <a style="font-size: 16pt; margin-left: 50px" ><b>II - аралық бақылау тапсырмалары</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab5_1"><b>Тәжірибелік жұмыс 5_1 - "Technodom" сайтындағы тауарлар</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab5_2"><b>Тәжірибелік жұмыс 5_2 - Иран қалаларының ауа райы</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab6"><b>Тәжірибелік жұмыс 6 - Файлдармен жұмыс істеу</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/lab7"><b>Тәжірибелік жұмыс 7 - Көп терезелі web-қосымшаларды әзірлеу</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" href="/chat"><b>Тәжірибелік жұмыс 8</b></a><br>
+    <a style="font-size: 16pt; margin-left: 50px" ><b>Студенттің өзіндік жұмысы 2 - </b></a>
+    <a style="font-size: 16pt; margin-left: 5px" href="/index6"><b>"By restaurant" жобасы</b></a>
+    <a style="font-size: 16pt; margin-left: 5px" ><b>және</b></a>
+    <a style="font-size: 16pt; margin-left: 5px" href="/admin/"><b>жобаның базасы</b></a><br>
+</body>
+</html>
